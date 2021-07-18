@@ -8,6 +8,7 @@ import argparse
 import shutil
 import os
 import glob
+from sensor_msgs.msg import Image
 
 
 if __name__ == "__main__":
@@ -78,13 +79,17 @@ if __name__ == "__main__":
                     stamp = stamps[i]
                     img = cv2.imread(join(reconstructed_images_folder, image_path), 0)
                     try:
-                        img_msg = bridge.cv2_to_imgmsg(img, encoding='mono8')
+                        img_msg = Image()
                         stamp_ros = rospy.Time(stamp)
-                        print(img.shape, stamp_ros)
                         img_msg.header.stamp = stamp_ros
+                        img_msg.height = img.shape[0]
+                        img_msg.width = img.shape[1]
+                        img_msg.step = img_msg.width
+                        img_msg.encoding = "mono8"
+                        img_msg.data = img.tobytes()
                         img_msg.header.seq = i
                         outbag.write(args.image_topic, img_msg,
                                      img_msg.header.stamp)
 
-                    except CvBridgeError, e:
-                        print e
+                    except CvBridgeError as e:
+                        print(e)

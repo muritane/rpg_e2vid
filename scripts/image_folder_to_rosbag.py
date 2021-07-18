@@ -63,7 +63,6 @@ if __name__ == "__main__":
                     img = cv2.imread(join(reconstructed_images_folder, image_path), 0)
 
                     try:
-                        #img_msg = bridge.cv2_to_imgmsg(img, encoding='mono8')
                         img_msg = Image()
                         stamp_ros = rospy.Time(stamp)
                         img_msg.header.stamp = stamp_ros
@@ -71,8 +70,7 @@ if __name__ == "__main__":
                         img_msg.width = img.shape[1]
                         img_msg.step = img_msg.width
                         img_msg.encoding = "mono8"
-                        img_msg.data = img.tostring()
-                        #print(img.shape, stamp_ros)
+                        img_msg.data = img.tobytes()
                         img_msg.header.seq = i
                         outbag.write(args.image_topic, img_msg,
                                      img_msg.header.stamp)
