@@ -62,9 +62,14 @@ if __name__ == "__main__":
             shutil.copyfile(original_bag_filename, input_bag_filename)
 
             # Now append the reconstructed images to the copied rosbag
-            stamps = np.loadtxt(
-                join(reconstructed_images_folder, 'timestamps.txt'))
-            if len(stamps.shape) == 2:
+            try:
+                stamps = np.loadtxt(
+                    join(reconstructed_images_folder, 'timestamps.txt'))
+            except Exception as e:
+                print(e)
+                stamps = None
+
+            if stamps is not None and len(stamps.shape) == 2:
                 stamps = stamps[:, 1]
 
             # list all images in the folder
@@ -76,7 +81,10 @@ if __name__ == "__main__":
 
                 for i, image_path in enumerate(images):
 
-                    stamp = stamps[i]
+                    if stamps is None:
+                        stamp = i
+                    else:
+                        stamp = stamps[i]
                     img = cv2.imread(join(reconstructed_images_folder, image_path), 0)
                     try:
                         img_msg = Image()
